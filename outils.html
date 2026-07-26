@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Outils — Inventaire Outils</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Outils</h1>
+</header>
+
+<main class="container">
+  <div class="search-bar">
+    <input type="text" id="recherche" placeholder="Rechercher un outil...">
+  </div>
+
+  <div class="filters-row" id="filtres-categorie">
+    <button class="filter-chip active" data-categorie="">Tous</button>
+    <button class="filter-chip" data-categorie="Électrique">Électrique</button>
+    <button class="filter-chip" data-categorie="Manuel">Manuel</button>
+    <button class="filter-chip" data-categorie="Échafaudage">Échafaudage</button>
+    <button class="filter-chip" data-categorie="Autre">Autre</button>
+  </div>
+
+  <div id="liste-outils"><div class="loading">Chargement...</div></div>
+</main>
+
+<button class="fab" id="btn-ajouter" aria-label="Ajouter un outil">+</button>
+
+<!-- Modal ajout rapide -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nouvel outil</h2>
+      <button class="btn-icon" id="btn-fermer-modal">✕</button>
+    </div>
+    <form id="form-outil">
+      <div class="field">
+        <label for="nom">Nom *</label>
+        <input type="text" id="nom" required placeholder="Ex : Perceuse, Plaque vibrante">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="categorie">Catégorie</label>
+          <select id="categorie">
+            <option value="Électrique">Électrique</option>
+            <option value="Manuel">Manuel</option>
+            <option value="Échafaudage">Échafaudage</option>
+            <option value="Autre" selected>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="quantite">Quantité</label>
+          <input type="number" id="quantite" value="1" min="1">
+        </div>
+      </div>
+      <div class="field">
+        <label for="groupe_id">Groupe (optionnel)</label>
+        <select id="groupe_id">
+          <option value="">— Aucun —</option>
+        </select>
+      </div>
+      <div class="field hidden" id="champ-dans-groupe">
+        <div class="checkbox-row">
+          <input type="checkbox" id="dans_groupe" checked>
+          <label for="dans_groupe">Actuellement dans le groupe</label>
+        </div>
+      </div>
+      <div class="field" id="champ-localisation">
+        <label for="localisation_id">Localisation</label>
+        <select id="localisation_id">
+          <option value="">— Aucune —</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Ajouter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+  <a href="outils.html" class="active"><span class="icon">🔧</span>Outils</a>
+  <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+  <a href="localisations.html"><span class="icon">📍</span>Lieux</a>
+  <a href="notes.html"><span class="icon">📝</span>Notes</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/outils.js"></script>
+</body>
+</html>

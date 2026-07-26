@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Détail outil — Inventaire Outils</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <a href="outils.html" class="btn-back" aria-label="Retour">←</a>
+  <h1>Détail de l'outil</h1>
+  <div class="header-actions">
+    <button class="btn-icon" id="btn-supprimer" aria-label="Supprimer">🗑️</button>
+  </div>
+</header>
+
+<main class="container" id="conteneur-principal">
+  <div class="loading">Chargement...</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script>
+// Logique de la fiche détaillée d'un outil (outil-detail.html)
+
+function afficherToast(message) {
+  const toast = document.getElementById('toast')
+  toast.textContent = message
+  toast.classList.add('show')
+  setTimeout(() => toast.classList.remove('show'), 2500)
+}
+
+function escapeHtml(texte) {
+  if (texte == null) return ''
+  const div = document.createElement('div')
+  div.textContent = texte
+  return div.innerHTML
+}
+
+const params = new URLSearchParams(window.location.search)
+const outilId = params.get('id')
+const conteneur = document.getElementById('conteneur-principal')
+
+if (!outilId) {
+  conteneur.innerHTML = '<div class="empty-state">Outil introuvable</div>'
+} else {
+  chargerOutil()
+}
+
+async function chargerOutil() {
+  const [{ data: outil, error }, { data: groupes }, { data: localisations }] = await Promise.all([
+    supabase.from('outils').select('*').eq('id', outilId).single(),
+    supabase.from('groupes').select('id, nom').order('nom'),
+    supabase.from('localisations').select('id, nom').order('nom'),
+  ])
+
+  if (error || !outil) {
+    conteneur.innerHTML = '<div class="empty-state">Outil introuvable</div>'
+    return
+  }
+
+  conteneur.innerHTML = `
+    <form id="form-outil">
+      <div class="field">
+        <label for="nom">Nom *</label>
+        <input type="text" id="nom" required>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="categorie">Catégorie</label>
+          <select id="categorie">
+            <option value="Électrique">Électrique</option>
+            <option value="Manuel">Manuel</option>
+            <option value="Échafaudage">Échafaudage</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="quantite">Quantité</label>
+          <input type="number" id="quantite" min="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="groupe_id">Groupe</label>
+        <select id="groupe_id">
+          <option value="">— Aucun —</option>
+          ${groupes.map(g => `<option value="${g.id}">${escapeHtml(g.nom)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field hidden" id="champ-dans-groupe">
+        <div class="checkbox-row">
+          <input type="checkbox" id="dans_groupe">
+          <label for="dans_groupe">Actuellement dans le groupe</label>
+        </div>
+      </div>
+      <div class="field" id="champ-localisation">
+        <label for="localisation_id">Localisation</label>
+        <select id="localisation_id">
+          <option value="">— Aucune —</option>
+          ${localisations.map(l => `<option value="${l.id}">${escapeHtml(l.nom)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="section-title">Achat</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="prix_achat">Prix d'achat ($)</label>
+          <input type="number" id="prix_achat" step="0.01">
+        </div>
+        <div class="field">
+          <label for="date_achat">Date d'achat</label>
+          <input type="date" id="date_achat">
+        </div>
+      </div>
+      <div class="field">
+        <label for="magasin">Magasin</label>
+        <input type="text" id="magasin">
+      </div>
+
+      <div class="section-title">Garantie</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="numero_serie">Numéro de série</label>
+          <input type="text" id="numero_serie">
+        </div>
+        <div class="field">
+          <label for="date_garantie">Fin de garantie</label>
+          <input type="date" id="date_garantie">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
+      </div>
+    </form>
+  `
+
+  document.getElementById('nom').value = outil.nom
+  document.getElementById('categorie').value = outil.categorie
+  document.getElementById('quantite').value = outil.quantite
+  document.getElementById('groupe_id').value = outil.groupe_id || ''
+  document.getElementById('dans_groupe').checked = outil.dans_groupe
+  document.getElementById('localisation_id').value = outil.localisation_id || ''
+  document.getElementById('prix_achat').value = outil.prix_achat ?? ''
+  document.getElementById('date_achat').value = outil.date_achat ?? ''
+  document.getElementById('magasin').value = outil.magasin ?? ''
+  document.getElementById('numero_serie').value = outil.numero_serie ?? ''
+  document.getElementById('date_garantie').value = outil.date_garantie ?? ''
+  document.getElementById('notes').value = outil.notes ?? ''
+
+  const selectGroupe = document.getElementById('groupe_id')
+  const checkboxDansGroupe = document.getElementById('dans_groupe')
+  const champDansGroupe = document.getElementById('champ-dans-groupe')
+  const champLocalisation = document.getElementById('champ-localisation')
+
+  function mettreAJourVisibiliteChamps() {
+    const groupeChoisi = selectGroupe.value !== ''
+    champDansGroupe.classList.toggle('hidden', !groupeChoisi)
+    const localisationNecessaire = !groupeChoisi || !checkboxDansGroupe.checked
+    champLocalisation.classList.toggle('hidden', !localisationNecessaire)
+  }
+
+  selectGroupe.addEventListener('change', mettreAJourVisibiliteChamps)
+  checkboxDansGroupe.addEventListener('change', mettreAJourVisibiliteChamps)
+  mettreAJourVisibiliteChamps()
+
+  document.getElementById('form-outil').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const groupeChoisi = selectGroupe.value || null
+    const valeurs = {
+      nom: document.getElementById('nom').value.trim(),
+      categorie: document.getElementById('categorie').value,
+      quantite: parseInt(document.getElementById('quantite').value, 10) || 1,
+      groupe_id: groupeChoisi,
+      dans_groupe: groupeChoisi ? checkboxDansGroupe.checked : false,
+      localisation_id: document.getElementById('localisation_id').value || null,
+      prix_achat: document.getElementById('prix_achat').value || null,
+      date_achat: document.getElementById('date_achat').value || null,
+      magasin: document.getElementById('magasin').value.trim() || null,
+      numero_serie: document.getElementById('numero_serie').value.trim() || null,
+      date_garantie: document.getElementById('date_garantie').value || null,
+      notes: document.getElementById('notes').value.trim() || null,
+    }
+
+    const { error } = await supabase.from('outils').update(valeurs).eq('id', outilId)
+    if (error) {
+      afficherToast('Erreur lors de l\'enregistrement')
+      return
+    }
+    afficherToast('Outil enregistré')
+  })
+}
+
+document.getElementById('btn-supprimer').addEventListener('click', async () => {
+  if (!outilId) return
+  if (!confirm('Supprimer définitivement cet outil ?')) return
+
+  const { error } = await supabase.from('outils').delete().eq('id', outilId)
+  if (error) {
+    afficherToast('Erreur lors de la suppression')
+    return
+  }
+  window.location.href = 'outils.html'
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Notes — Inventaire Outils</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Notes</h1>
+</header>
+
+<main class="container">
+  <form id="form-ajout-rapide" style="display:flex; gap:8px; margin-bottom:18px;">
+    <input type="text" id="nouvelle-note" placeholder="Nouvelle note..." required style="flex:1;">
+    <button type="submit" class="btn btn-primary">Ajouter</button>
+  </form>
+
+  <div class="section-title">À faire</div>
+  <div id="notes-actives"><div class="loading">Chargement...</div></div>
+
+  <div class="section-title">Complétées</div>
+  <div id="notes-completees"></div>
+</main>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+  <a href="outils.html"><span class="icon">🔧</span>Outils</a>
+  <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+  <a href="localisations.html"><span class="icon">📍</span>Lieux</a>
+  <a href="notes.html" class="active"><span class="icon">📝</span>Notes</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/notes.js"></script>
+</body>
+</html>

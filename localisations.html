@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Localisations — Inventaire Outils</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Localisations</h1>
+</header>
+
+<main class="container">
+  <div id="liste-localisations"><div class="loading">Chargement...</div></div>
+</main>
+
+<button class="fab" id="btn-ajouter" aria-label="Ajouter une localisation">+</button>
+
+<!-- Modal ajout / édition -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-titre">Nouvelle localisation</h2>
+      <button class="btn-icon" id="btn-fermer-modal">✕</button>
+    </div>
+    <form id="form-localisation">
+      <input type="hidden" id="localisation-id">
+      <div class="field">
+        <label for="nom">Nom *</label>
+        <input type="text" id="nom" required placeholder="Ex : Chalet, Chez Marie">
+      </div>
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="Optionnel"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-danger hidden" id="btn-supprimer">Supprimer</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+  <a href="outils.html"><span class="icon">🔧</span>Outils</a>
+  <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+  <a href="localisations.html" class="active"><span class="icon">📍</span>Lieux</a>
+  <a href="notes.html"><span class="icon">📝</span>Notes</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/localisations.js"></script>
+</body>
+</html>

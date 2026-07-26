@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Inventaire Outils</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Inventaire Outils</h1>
+</header>
+
+<main class="container">
+
+  <div class="stats-grid">
+    <a href="outils.html" class="stat-card">
+      <div class="stat-value" id="stat-outils">–</div>
+      <div class="stat-label">Outils</div>
+    </a>
+    <a href="groupes.html" class="stat-card">
+      <div class="stat-value" id="stat-groupes">–</div>
+      <div class="stat-label">Groupes</div>
+    </a>
+    <a href="localisations.html" class="stat-card">
+      <div class="stat-value" id="stat-localisations">–</div>
+      <div class="stat-label">Lieux</div>
+    </a>
+  </div>
+
+  <div class="section-title">
+    ⚠️ Outils non localisés
+    <span class="badge badge-warning" id="count-non-localises"></span>
+  </div>
+  <div id="outils-non-localises"><div class="loading">Chargement...</div></div>
+
+  <div class="section-title">
+    📝 Notes actives
+    <span class="badge" id="count-notes"></span>
+  </div>
+  <div id="notes-actives"><div class="loading">Chargement...</div></div>
+
+</main>
+
+<nav class="bottom-nav">
+  <a href="index.html" class="active"><span class="icon">🏠</span>Accueil</a>
+  <a href="outils.html"><span class="icon">🔧</span>Outils</a>
+  <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+  <a href="localisations.html"><span class="icon">📍</span>Lieux</a>
+  <a href="notes.html"><span class="icon">📝</span>Notes</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
