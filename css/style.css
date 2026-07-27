@@ -681,39 +681,3 @@ textarea {
     display: none !important;
   }
 }
-
-/* ---------- Scanner ---------- */
-
-#reader {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--panel);
-}
-
-#reader select, #reader input {
-  font-family: var(--font-body);
-  border-radius: 6px;
-  padding: 8px;
-  background: var(--ink);
-  color: var(--white);
-  border: 1px solid var(--line);
-}
-
-#reader button {
-  font-family: var(--font-head);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--gold);
-  color: var(--ink);
-  border: none;
-  border-radius: 6px;
-  padding: 10px 14px;
-  cursor: pointer;
-  margin: 6px 0;
-}
-
-#reader img {
-  filter: invert(1);
-}
