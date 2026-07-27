@@ -129,11 +129,13 @@ function afficherOutils() {
     const badgeGroupe = o.groupes ? `<span class="badge badge-muted">${escapeHtml(o.groupes.nom)}</span>` : ''
 
     return `
-      <a href="outil-detail.html?id=${o.id}" class="card list-item">
+      <a href="outil-detail.html?id=${o.id}" class="card list-item" data-cat="${escapeHtml(o.categorie)}">
         <div class="list-item-main">
           <div class="list-item-title">${escapeHtml(o.nom)} · Qté ${o.quantite}</div>
-          <div class="list-item-sub">${escapeHtml(o.categorie)}</div>
-          <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">${badgeLoc}${badgeGroupe}</div>
+          <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+            <span class="badge" data-cat="${escapeHtml(o.categorie)}">${escapeHtml(o.categorie)}</span>
+            ${badgeLoc}${badgeGroupe}
+          </div>
         </div>
         <span class="chevron">›</span>
       </a>
