@@ -657,7 +657,7 @@ textarea {
 
 /* ---------- Code QR ---------- */
 
-#qrcode-canvas {
+#qrcode-container canvas, #qrcode-container img {
   border-radius: 8px;
   max-width: 100%;
 }

@@ -26,7 +26,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="js/supabase.js"></script>
 <script>
 // Logique de la fiche détaillée d'un outil (outil-detail.html)
@@ -151,7 +151,7 @@ async function chargerOutil() {
     <div class="section-title">Code QR</div>
     <div class="card" id="qr-print-area" style="text-align:center;">
       <div style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.85rem; margin-bottom:12px;" id="qr-nom-outil"></div>
-      <canvas id="qrcode-canvas"></canvas>
+      <div id="qrcode-container" style="display:flex; justify-content:center;"></div>
       <div class="form-actions no-print">
         <button type="button" class="btn btn-secondary" id="btn-imprimer-qr">Imprimer</button>
         <button type="button" class="btn btn-secondary" id="btn-telecharger-qr">Télécharger</button>
@@ -161,14 +161,17 @@ async function chargerOutil() {
 
   document.getElementById('qr-nom-outil').textContent = outil.nom
   const urlOutil = `${window.location.origin}${window.location.pathname}?id=${outilId}`
-  QRCode.toCanvas(document.getElementById('qrcode-canvas'), urlOutil, {
+  new QRCode(document.getElementById('qrcode-container'), {
+    text: urlOutil,
     width: 220,
-    margin: 2,
-    color: { dark: '#0c0d0c', light: '#f3f1eaff' },
+    height: 220,
+    colorDark: '#0c0d0c',
+    colorLight: '#f3f1ea',
+    correctLevel: QRCode.CorrectLevel.M,
   })
 
   document.getElementById('btn-telecharger-qr').addEventListener('click', () => {
-    const canvas = document.getElementById('qrcode-canvas')
+    const canvas = document.querySelector('#qrcode-container canvas')
     const nomFichier = outil.nom.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     const lien = document.createElement('a')
     lien.download = `qr-${nomFichier || 'outil'}.png`
