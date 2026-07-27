@@ -26,6 +26,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="js/supabase.js"></script>
 <script>
 // Logique de la fiche détaillée d'un outil (outil-detail.html)
@@ -146,7 +147,38 @@ async function chargerOutil() {
         <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
       </div>
     </form>
+
+    <div class="section-title">Code QR</div>
+    <div class="card" id="qr-print-area" style="text-align:center;">
+      <div style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.85rem; margin-bottom:12px;" id="qr-nom-outil"></div>
+      <canvas id="qrcode-canvas"></canvas>
+      <div class="form-actions no-print">
+        <button type="button" class="btn btn-secondary" id="btn-imprimer-qr">Imprimer</button>
+        <button type="button" class="btn btn-secondary" id="btn-telecharger-qr">Télécharger</button>
+      </div>
+    </div>
   `
+
+  document.getElementById('qr-nom-outil').textContent = outil.nom
+  const urlOutil = `${window.location.origin}${window.location.pathname}?id=${outilId}`
+  QRCode.toCanvas(document.getElementById('qrcode-canvas'), urlOutil, {
+    width: 220,
+    margin: 2,
+    color: { dark: '#0c0d0c', light: '#f3f1eaff' },
+  })
+
+  document.getElementById('btn-telecharger-qr').addEventListener('click', () => {
+    const canvas = document.getElementById('qrcode-canvas')
+    const nomFichier = outil.nom.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const lien = document.createElement('a')
+    lien.download = `qr-${nomFichier || 'outil'}.png`
+    lien.href = canvas.toDataURL('image/png')
+    lien.click()
+  })
+
+  document.getElementById('btn-imprimer-qr').addEventListener('click', () => {
+    window.print()
+  })
 
   document.getElementById('nom').value = outil.nom
   document.getElementById('categorie').value = outil.categorie
