@@ -31,3 +31,40 @@ function onScanFailure() {
 
 const scanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: 250 }, false)
 scanner.render(onScanSuccess, onScanFailure)
+
+// La librairie html5-qrcode n'a pas d'option de langue : on traduit ses textes
+// visibles après coup, au fur et à mesure qu'ils apparaissent dans le DOM.
+const TRADUCTIONS = {
+  'Requesting camera permissions...': 'Demande d\'accès à la caméra...',
+  'Request Camera Permissions': 'Autoriser la caméra',
+  'No camera found': 'Aucune caméra trouvée',
+  'Scan an Image File': 'Scanner une image',
+  'Select Camera': 'Choisir une caméra',
+  'Start Scanning': 'Démarrer',
+  'Stop Scanning': 'Arrêter',
+  'Switch off flash': 'Éteindre le flash',
+  'Switch on flash': 'Allumer le flash',
+  'Scanning ongoing.': 'Scan en cours.',
+  'Loading...': 'Chargement...',
+  'Powered by ': 'Propulsé par ',
+}
+
+function traduireTexteNoeud(noeud) {
+  const original = noeud.nodeValue.trim()
+  if (TRADUCTIONS[original]) {
+    noeud.nodeValue = noeud.nodeValue.replace(original, TRADUCTIONS[original])
+  }
+}
+
+function traduireConteneur(element) {
+  const marcheur = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+  let noeud
+  while ((noeud = marcheur.nextNode())) {
+    traduireTexteNoeud(noeud)
+  }
+}
+
+const conteneurReader = document.getElementById('reader')
+traduireConteneur(conteneurReader)
+new MutationObserver(() => traduireConteneur(conteneurReader))
+  .observe(conteneurReader, { childList: true, subtree: true, characterData: true })
