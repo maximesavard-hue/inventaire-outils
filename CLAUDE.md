@@ -42,6 +42,25 @@ const SUPABASE_ANON_KEY = 'sb_publishable_U_0EkEYJJGuz-IrhZSc9Vw_14UzaY3f'
 
 ---
 
+## État actuel du déploiement
+
+*Section tenue à jour par Claude au fil des sessions — c'est la source de vérité pour reprendre le travail, peu importe la machine utilisée (contrairement à la mémoire locale de Claude, ce fichier est versionné avec Git et suit le repo partout).*
+
+- **Repo GitHub** : `maximesavard-hue/inventaire-outils` (public) — https://github.com/maximesavard-hue/inventaire-outils
+- **Site en ligne** : https://maximesavard-hue.github.io/inventaire-outils/ (GitHub Pages, déploie automatiquement à chaque push sur `main`)
+- **Projet Supabase** : ref `twzttyglnloshujwnlkx`, nommé « ToolsApps » dans le dashboard Supabase (aucun rapport avec un repo GitHub — ce nom n'existe que côté Supabase)
+- Les 4 tables sont créées (`supabase-tables.sql`), **RLS désactivé volontairement** sur les 4 (app mono-utilisateur — voir section RLS dans `APPRENTISSAGE.md` si jamais un 2e utilisateur est ajouté, il faudra revisiter ce choix)
+- Design : thème « industriel-luxe » — fond charbon `#0c0d0c`, accent doré `#cda449`, polices Oswald (titres/boutons) + JetBrains Mono (données chiffrées), inspiré du projet perso `PresenceSolotech` de l'utilisateur. Code couleur par catégorie d'outil (bordure gauche + badge) dans `css/style.css`.
+- QR code par outil sur `outil-detail.html` (librairie `qrcodejs` via cdnjs) encodant le lien direct vers la fiche — imprimable/téléchargeable pour coller sur l'outil physique. **Pas de scanner intégré à l'app** : retiré volontairement, redondant avec l'appareil photo natif de n'importe quel téléphone qui lit déjà les QR codes.
+- `APPRENTISSAGE.md` à la racine : doc pédagogique pour l'utilisateur (ne connaît pas le dev web/Supabase), à tenir à jour si l'architecture change significativement.
+- Outils CLI utilisés pour administrer ce projet (installation + authentification **par machine**, non synchronisées entre tour/laptop) :
+  - `gh` (GitHub CLI) — installé via winget, `C:\Program Files\GitHub CLI\gh.exe`
+  - Supabase CLI — installé manuellement (binaire GitHub releases), `$env:LOCALAPPDATA\supabase-cli\supabase.exe`
+  - Sur une nouvelle machine : `gh auth login` et `& "$env:LOCALAPPDATA\supabase-cli\supabase.exe" login` (ou réinstaller le binaire d'abord), puis `supabase link --project-ref twzttyglnloshujwnlkx`
+  - Ni `git`, ni `gh` ne sont dans le PATH par défaut d'une session PowerShell fraîche sur cette tour — utiliser le chemin complet ou faire `$env:Path = "C:\Program Files\Git\bin;C:\Program Files\GitHub CLI;" + $env:Path` en début de session si besoin
+
+---
+
 ## Structure de la base de données
 
 ### Table `localisations`
@@ -142,6 +161,14 @@ inventaire-outils/
 - JS commenté en français
 - Préférer la simplicité à l'élégance
 - Tester sur mobile à chaque étape
+
+---
+
+## Notes de collaboration avec Claude
+
+- L'utilisateur (Maxime) ne connaît pas le développement web ni Supabase — expliquer les décisions techniques en langage simple plutôt que d'exécuter silencieusement. `APPRENTISSAGE.md` est là pour l'aider à monter en compétence, pas juste utiliser l'app.
+- Une fois `gh` et le CLI Supabase authentifiés sur la machine utilisée (voir section « État actuel du déploiement »), agir de façon autonome pour git/gh/supabase (commits, push, requêtes SQL, déploiement) sans redemander confirmation à chaque étape. Rester attentif seulement si une action est structurellement ambiguë (ex : nom de repo, choix qui engage l'architecture).
+- Préférer retirer une fonctionnalité plutôt que de garder du code redondant, même si elle a déjà été construite et fonctionne (ex : le scanner QR intégré, retiré après coup car redondant avec l'appareil photo natif). Signaler proactivement une redondance avant de construire quelque chose, plutôt que d'attendre qu'on le demande.
 
 ---
 
