@@ -72,12 +72,19 @@ const SUPABASE_ANON_KEY = 'sb_publishable_U_0EkEYJJGuz-IrhZSc9Vw_14UzaY3f'
 | created_at | timestamp | Automatique |
 
 ### Table `groupes`
+Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un objet acheté en soi (ex : un bac Milwaukee Packout a son propre numéro de modèle, prix, date d'achat). D'où les mêmes champs d'achat/garantie que sur `outils`.
+
 | Champ | Type | Description |
 |-------|------|-------------|
 | id | uuid | Automatique |
 | nom | text | Ex: Packout rouge, Bac échafaudage |
 | type | text | Packout / Bac / Sac / Autre |
 | localisation_id | uuid | FK → localisations |
+| prix_achat | numeric | Optionnel |
+| date_achat | date | Optionnel |
+| magasin | text | Optionnel |
+| numero_serie | text | Optionnel |
+| date_garantie | date | Optionnel |
 | notes | text | Optionnel |
 | created_at | timestamp | Automatique |
 
@@ -125,6 +132,7 @@ inventaire-outils/
 ├── localisations.html      # Gestion des localisations
 ├── notes.html              # Bloc-notes / todo
 ├── outil-detail.html       # Fiche détaillée d'un outil
+├── groupe-detail.html      # Fiche détaillée d'un groupe (contenant + achat/garantie)
 ├── css/
 │   └── style.css           # Styles globaux
 ├── js/

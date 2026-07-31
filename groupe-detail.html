@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Détail groupe — Inventaire Outils</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <a href="groupes.html" class="btn-back" aria-label="Retour">←</a>
+  <h1>Détail du groupe</h1>
+  <div class="header-actions">
+    <button class="btn-icon" id="btn-supprimer" aria-label="Supprimer">🗑️</button>
+  </div>
+</header>
+
+<main class="container" id="conteneur-principal">
+  <div class="loading">Chargement...</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+// Logique de la fiche détaillée d'un groupe (groupe-detail.html)
+
+function afficherToast(message) {
+  const toast = document.getElementById('toast')
+  toast.textContent = message
+  toast.classList.add('show')
+  setTimeout(() => toast.classList.remove('show'), 2500)
+}
+
+function escapeHtml(texte) {
+  if (texte == null) return ''
+  const div = document.createElement('div')
+  div.textContent = texte
+  return div.innerHTML
+}
+
+const params = new URLSearchParams(window.location.search)
+const groupeId = params.get('id')
+const conteneur = document.getElementById('conteneur-principal')
+
+if (!groupeId) {
+  conteneur.innerHTML = '<div class="empty-state">Groupe introuvable</div>'
+} else {
+  chargerGroupe()
+}
+
+async function chargerGroupe() {
+  const [{ data: groupe, error }, { data: localisations }] = await Promise.all([
+    supabase.from('groupes').select('*').eq('id', groupeId).single(),
+    supabase.from('localisations').select('id, nom').order('nom'),
+  ])
+
+  if (error || !groupe) {
+    conteneur.innerHTML = '<div class="empty-state">Groupe introuvable</div>'
+    return
+  }
+
+  conteneur.innerHTML = `
+    <form id="form-groupe">
+      <div class="field">
+        <label for="nom">Nom *</label>
+        <input type="text" id="nom" required>
+      </div>
+      <div class="field">
+        <label for="type">Type</label>
+        <select id="type">
+          <option value="Packout">Packout</option>
+          <option value="Bac">Bac</option>
+          <option value="Sac">Sac</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="localisation_id">Localisation</label>
+        <select id="localisation_id">
+          <option value="">— Aucune —</option>
+          ${localisations.map(l => `<option value="${l.id}">${escapeHtml(l.nom)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="section-title">Achat</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="prix_achat">Prix d'achat ($)</label>
+          <input type="number" id="prix_achat" step="0.01">
+        </div>
+        <div class="field">
+          <label for="date_achat">Date d'achat</label>
+          <input type="date" id="date_achat">
+        </div>
+      </div>
+      <div class="field">
+        <label for="magasin">Magasin</label>
+        <input type="text" id="magasin">
+      </div>
+
+      <div class="section-title">Garantie</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="numero_serie">Numéro de série</label>
+          <input type="text" id="numero_serie">
+        </div>
+        <div class="field">
+          <label for="date_garantie">Fin de garantie</label>
+          <input type="date" id="date_garantie">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
+      </div>
+    </form>
+
+    <div class="section-title">Code QR</div>
+    <div class="card" id="qr-print-area" style="text-align:center;">
+      <div style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.85rem; margin-bottom:12px;" id="qr-nom-groupe"></div>
+      <div id="qrcode-container" style="display:flex; justify-content:center;"></div>
+      <div class="form-actions no-print">
+        <button type="button" class="btn btn-secondary" id="btn-imprimer-qr">Imprimer</button>
+        <button type="button" class="btn btn-secondary" id="btn-telecharger-qr">Télécharger</button>
+      </div>
+    </div>
+  `
+
+  document.getElementById('qr-nom-groupe').textContent = groupe.nom
+  const urlGroupe = `${window.location.origin}${window.location.pathname}?id=${groupeId}`
+  new QRCode(document.getElementById('qrcode-container'), {
+    text: urlGroupe,
+    width: 220,
+    height: 220,
+    colorDark: '#0c0d0c',
+    colorLight: '#f3f1ea',
+    correctLevel: QRCode.CorrectLevel.M,
+  })
+
+  document.getElementById('btn-telecharger-qr').addEventListener('click', () => {
+    const canvas = document.querySelector('#qrcode-container canvas')
+    const nomFichier = groupe.nom.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const lien = document.createElement('a')
+    lien.download = `qr-${nomFichier || 'groupe'}.png`
+    lien.href = canvas.toDataURL('image/png')
+    lien.click()
+  })
+
+  document.getElementById('btn-imprimer-qr').addEventListener('click', () => {
+    window.print()
+  })
+
+  document.getElementById('nom').value = groupe.nom
+  document.getElementById('type').value = groupe.type || 'Autre'
+  document.getElementById('localisation_id').value = groupe.localisation_id || ''
+  document.getElementById('prix_achat').value = groupe.prix_achat ?? ''
+  document.getElementById('date_achat').value = groupe.date_achat ?? ''
+  document.getElementById('magasin').value = groupe.magasin ?? ''
+  document.getElementById('numero_serie').value = groupe.numero_serie ?? ''
+  document.getElementById('date_garantie').value = groupe.date_garantie ?? ''
+  document.getElementById('notes').value = groupe.notes ?? ''
+
+  document.getElementById('form-groupe').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const valeurs = {
+      nom: document.getElementById('nom').value.trim(),
+      type: document.getElementById('type').value,
+      localisation_id: document.getElementById('localisation_id').value || null,
+      prix_achat: document.getElementById('prix_achat').value || null,
+      date_achat: document.getElementById('date_achat').value || null,
+      magasin: document.getElementById('magasin').value.trim() || null,
+      numero_serie: document.getElementById('numero_serie').value.trim() || null,
+      date_garantie: document.getElementById('date_garantie').value || null,
+      notes: document.getElementById('notes').value.trim() || null,
+    }
+
+    const { error } = await supabase.from('groupes').update(valeurs).eq('id', groupeId)
+    if (error) {
+      afficherToast('Erreur lors de l\'enregistrement')
+      return
+    }
+    afficherToast('Groupe enregistré')
+  })
+}
+
+document.getElementById('btn-supprimer').addEventListener('click', async () => {
+  if (!groupeId) return
+  if (!confirm('Supprimer définitivement ce groupe ?')) return
+
+  const { error } = await supabase.from('groupes').delete().eq('id', groupeId)
+  if (error) {
+    afficherToast('Impossible de supprimer : des outils y sont encore associés')
+    return
+  }
+  window.location.href = 'groupes.html'
+})
+</script>
+</body>
+</html>

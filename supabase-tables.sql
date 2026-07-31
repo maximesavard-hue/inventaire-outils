@@ -10,11 +10,18 @@ CREATE TABLE localisations (
 );
 
 -- 2. Groupes
+-- Un groupe est un contenant (packout, bac...), qui peut lui-même être un objet
+-- acheté (d'où les champs prix_achat / numero_serie / etc., comme sur outils)
 CREATE TABLE groupes (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   nom text NOT NULL,
   type text DEFAULT 'Autre', -- Packout / Bac / Sac / Autre
   localisation_id uuid REFERENCES localisations(id),
+  prix_achat numeric,
+  date_achat date,
+  magasin text,
+  numero_serie text,
+  date_garantie date,
   notes text,
   created_at timestamp with time zone DEFAULT now()
 );

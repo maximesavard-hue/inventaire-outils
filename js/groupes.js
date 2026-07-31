@@ -16,7 +16,6 @@ function escapeHtml(texte) {
 
 const overlay = document.getElementById('modal-overlay')
 const form = document.getElementById('form-groupe')
-const btnSupprimer = document.getElementById('btn-supprimer')
 const selectLocalisation = document.getElementById('localisation_id')
 
 async function remplirSelectLocalisations() {
@@ -25,38 +24,16 @@ async function remplirSelectLocalisations() {
     (localisations || []).map(l => `<option value="${l.id}">${escapeHtml(l.nom)}</option>`).join('')
 }
 
-function ouvrirModal(groupe) {
-  form.reset()
-  if (groupe) {
-    document.getElementById('modal-titre').textContent = 'Modifier le groupe'
-    document.getElementById('groupe-id').value = groupe.id
-    document.getElementById('nom').value = groupe.nom
-    document.getElementById('type').value = groupe.type || 'Autre'
-    selectLocalisation.value = groupe.localisation_id || ''
-    document.getElementById('notes').value = groupe.notes || ''
-    btnSupprimer.classList.remove('hidden')
-  } else {
-    document.getElementById('modal-titre').textContent = 'Nouveau groupe'
-    document.getElementById('groupe-id').value = ''
-    btnSupprimer.classList.add('hidden')
-  }
-  overlay.classList.remove('hidden')
-}
-
-function fermerModal() {
-  overlay.classList.add('hidden')
-}
-
 document.getElementById('btn-ajouter').addEventListener('click', async () => {
+  form.reset()
   await remplirSelectLocalisations()
-  ouvrirModal(null)
+  overlay.classList.remove('hidden')
 })
-document.getElementById('btn-fermer-modal').addEventListener('click', fermerModal)
-overlay.addEventListener('click', (e) => { if (e.target === overlay) fermerModal() })
+document.getElementById('btn-fermer-modal').addEventListener('click', () => overlay.classList.add('hidden'))
+overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.add('hidden') })
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault()
-  const id = document.getElementById('groupe-id').value
   const valeurs = {
     nom: document.getElementById('nom').value.trim(),
     type: document.getElementById('type').value,
@@ -64,32 +41,15 @@ form.addEventListener('submit', async (e) => {
     notes: document.getElementById('notes').value.trim() || null,
   }
 
-  const { error } = id
-    ? await supabase.from('groupes').update(valeurs).eq('id', id)
-    : await supabase.from('groupes').insert(valeurs)
+  const { error } = await supabase.from('groupes').insert(valeurs)
 
   if (error) {
-    afficherToast('Erreur lors de l\'enregistrement')
+    afficherToast('Erreur lors de l\'ajout')
     return
   }
 
-  fermerModal()
-  afficherToast('Groupe enregistré')
-  chargerGroupes()
-})
-
-btnSupprimer.addEventListener('click', async () => {
-  const id = document.getElementById('groupe-id').value
-  if (!confirm('Supprimer ce groupe ?')) return
-
-  const { error } = await supabase.from('groupes').delete().eq('id', id)
-  if (error) {
-    afficherToast('Impossible de supprimer : des outils y sont encore associés')
-    return
-  }
-
-  fermerModal()
-  afficherToast('Groupe supprimé')
+  overlay.classList.add('hidden')
+  afficherToast('Groupe ajouté')
   chargerGroupes()
 })
 
@@ -115,23 +75,15 @@ async function chargerGroupes() {
     const nbOutils = outils.filter(o => o.groupe_id === g.id).length
     const localisationNom = g.localisations ? g.localisations.nom : 'Sans localisation'
     return `
-      <div class="card list-item card-clickable" data-id="${g.id}">
+      <a href="groupe-detail.html?id=${g.id}" class="card list-item">
         <div class="list-item-main">
           <div class="list-item-title">${escapeHtml(g.nom)} <span class="badge badge-muted">${escapeHtml(g.type)}</span></div>
           <div class="list-item-sub">${localisationNom} · ${nbOutils} outil(s)</div>
         </div>
         <span class="chevron">›</span>
-      </div>
+      </a>
     `
   }).join('')
-
-  conteneur.querySelectorAll('.card-clickable').forEach(card => {
-    card.addEventListener('click', async () => {
-      const g = groupes.find(x => x.id === card.dataset.id)
-      await remplirSelectLocalisations()
-      ouvrirModal(g)
-    })
-  })
 }
 
 chargerGroupes()
