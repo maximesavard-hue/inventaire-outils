@@ -128,8 +128,13 @@ function afficherOutils() {
       : `<span class="badge badge-warning">Non localisé</span>`
     const badgeGroupe = o.groupes ? `<span class="badge badge-muted">${escapeHtml(o.groupes.nom)}</span>` : ''
 
+    const photo = o.photo_url
+      ? `<img src="${escapeHtml(o.photo_url)}" class="list-item-photo" alt="">`
+      : ''
+
     return `
       <a href="outil-detail.html?id=${o.id}" class="card list-item" data-cat="${escapeHtml(o.categorie)}">
+        ${photo}
         <div class="list-item-main">
           <div class="list-item-title">${escapeHtml(o.nom)} · Qté ${o.quantite}</div>
           <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
@@ -148,7 +153,7 @@ async function chargerOutils() {
   const { data, error } = await supabase
     .from('outils')
     .select(`
-      id, nom, categorie, quantite, dans_groupe, groupe_id, localisation_id,
+      id, nom, categorie, quantite, dans_groupe, groupe_id, localisation_id, photo_url,
       localisations(nom),
       groupes(nom, localisation_id, localisations(nom))
     `)

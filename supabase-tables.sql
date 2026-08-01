@@ -22,6 +22,7 @@ CREATE TABLE groupes (
   magasin text,
   numero_serie text,
   date_garantie date,
+  photo_url text,
   notes text,
   created_at timestamp with time zone DEFAULT now()
 );
@@ -40,6 +41,7 @@ CREATE TABLE outils (
   magasin text,
   numero_serie text,
   date_garantie date,
+  photo_url text,
   notes text,
   created_at timestamp with time zone DEFAULT now()
 );
@@ -58,3 +60,17 @@ ALTER TABLE localisations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE groupes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE outils DISABLE ROW LEVEL SECURITY;
 ALTER TABLE notes DISABLE ROW LEVEL SECURITY;
+
+-- 5. Stockage des photos (outils et groupes)
+insert into storage.buckets (id, name, public)
+values ('photos', 'photos', true)
+on conflict (id) do nothing;
+
+create policy "photos lecture publique" on storage.objects
+  for select using (bucket_id = 'photos');
+create policy "photos ecriture" on storage.objects
+  for insert with check (bucket_id = 'photos');
+create policy "photos modification" on storage.objects
+  for update using (bucket_id = 'photos');
+create policy "photos suppression" on storage.objects
+  for delete using (bucket_id = 'photos');

@@ -28,6 +28,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="js/supabase.js"></script>
+<script src="js/photo.js"></script>
 <script>
 // Logique de la fiche détaillée d'un groupe (groupe-detail.html)
 
@@ -127,6 +128,18 @@ async function chargerGroupe() {
       </div>
     </form>
 
+    <div class="section-title">Photo</div>
+    <div class="card" style="text-align:center;">
+      <img id="photo-apercu" class="hidden" alt="">
+      <div class="empty-state" id="photo-vide" style="padding:20px 0;">Aucune photo</div>
+      <div class="form-actions">
+        <label class="btn btn-secondary btn-block" style="cursor:pointer;">
+          Prendre / choisir une photo
+          <input type="file" accept="image/*" capture="environment" id="input-photo" class="hidden">
+        </label>
+      </div>
+    </div>
+
     <div class="section-title">Code QR</div>
     <div class="card" id="qr-print-area" style="text-align:center;">
       <div style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.85rem; margin-bottom:12px;" id="qr-nom-groupe"></div>
@@ -137,6 +150,36 @@ async function chargerGroupe() {
       </div>
     </div>
   `
+
+  const imgApercu = document.getElementById('photo-apercu')
+  const photoVide = document.getElementById('photo-vide')
+
+  function afficherPhoto(url) {
+    if (url) {
+      imgApercu.src = url
+      imgApercu.classList.remove('hidden')
+      photoVide.classList.add('hidden')
+    } else {
+      imgApercu.classList.add('hidden')
+      photoVide.classList.remove('hidden')
+    }
+  }
+  afficherPhoto(groupe.photo_url)
+
+  document.getElementById('input-photo').addEventListener('change', async (e) => {
+    const fichier = e.target.files[0]
+    if (!fichier) return
+    afficherToast('Envoi de la photo...')
+    try {
+      const url = await televerserPhoto(fichier, 'groupes', groupeId)
+      const { error } = await supabase.from('groupes').update({ photo_url: url }).eq('id', groupeId)
+      if (error) throw error
+      afficherPhoto(url)
+      afficherToast('Photo enregistrée')
+    } catch (err) {
+      afficherToast('Erreur lors de l\'envoi de la photo')
+    }
+  })
 
   document.getElementById('qr-nom-groupe').textContent = groupe.nom
   const urlGroupe = `${window.location.origin}${window.location.pathname}?id=${groupeId}`

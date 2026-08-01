@@ -74,8 +74,13 @@ async function chargerGroupes() {
   conteneur.innerHTML = groupes.map(g => {
     const nbOutils = outils.filter(o => o.groupe_id === g.id).length
     const localisationNom = g.localisations ? g.localisations.nom : 'Sans localisation'
+    const photo = g.photo_url
+      ? `<img src="${escapeHtml(g.photo_url)}" class="list-item-photo" alt="">`
+      : ''
+
     return `
       <a href="groupe-detail.html?id=${g.id}" class="card list-item">
+        ${photo}
         <div class="list-item-main">
           <div class="list-item-title">${escapeHtml(g.nom)} <span class="badge badge-muted">${escapeHtml(g.type)}</span></div>
           <div class="list-item-sub">${localisationNom} · ${nbOutils} outil(s)</div>

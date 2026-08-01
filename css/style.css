@@ -655,6 +655,27 @@ textarea {
   color: var(--grey-dim);
 }
 
+/* ---------- Photo ---------- */
+
+#photo-apercu {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  margin: 0 auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.list-item-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+
 /* ---------- Code QR ---------- */
 
 #qrcode-container canvas, #qrcode-container img {

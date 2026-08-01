@@ -50,6 +50,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_U_0EkEYJJGuz-IrhZSc9Vw_14UzaY3f'
 - **Site en ligne** : https://maximesavard-hue.github.io/inventaire-outils/ (GitHub Pages, déploie automatiquement à chaque push sur `main`)
 - **Projet Supabase** : ref `twzttyglnloshujwnlkx`, nommé « ToolsApps » dans le dashboard Supabase (aucun rapport avec un repo GitHub — ce nom n'existe que côté Supabase)
 - Les 4 tables sont créées (`supabase-tables.sql`), **RLS désactivé volontairement** sur les 4 (app mono-utilisateur — voir section RLS dans `APPRENTISSAGE.md` si jamais un 2e utilisateur est ajouté, il faudra revisiter ce choix)
+- Photos : bucket Supabase Storage `photos` (public, sans authentification — même logique que le RLS désactivé). Colonne `photo_url` sur `outils` et `groupes`. Upload géré par `js/photo.js` (redimensionnement côté client avant envoi).
 - Design : thème « industriel-luxe » — fond charbon `#0c0d0c`, accent doré `#cda449`, polices Oswald (titres/boutons) + JetBrains Mono (données chiffrées), inspiré du projet perso `PresenceSolotech` de l'utilisateur. Code couleur par catégorie d'outil (bordure gauche + badge) dans `css/style.css`.
 - QR code par outil sur `outil-detail.html` (librairie `qrcodejs` via cdnjs) encodant le lien direct vers la fiche — imprimable/téléchargeable pour coller sur l'outil physique. **Pas de scanner intégré à l'app** : retiré volontairement, redondant avec l'appareil photo natif de n'importe quel téléphone qui lit déjà les QR codes.
 - `APPRENTISSAGE.md` à la racine : doc pédagogique pour l'utilisateur (ne connaît pas le dev web/Supabase), à tenir à jour si l'architecture change significativement.
@@ -85,6 +86,7 @@ Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un o
 | magasin | text | Optionnel |
 | numero_serie | text | Optionnel |
 | date_garantie | date | Optionnel |
+| photo_url | text | URL publique de la photo (bucket Storage `photos`), optionnel |
 | notes | text | Optionnel |
 | created_at | timestamp | Automatique |
 
@@ -103,6 +105,7 @@ Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un o
 | magasin | text | Optionnel |
 | numero_serie | text | Optionnel |
 | date_garantie | date | Optionnel |
+| photo_url | text | URL publique de la photo (bucket Storage `photos`), optionnel |
 | notes | text | Optionnel |
 | created_at | timestamp | Automatique |
 
@@ -137,6 +140,7 @@ inventaire-outils/
 │   └── style.css           # Styles globaux
 ├── js/
 │   ├── supabase.js         # Config et client Supabase (déjà créé)
+│   ├── photo.js            # Upload/redimensionnement des photos (outils + groupes)
 │   ├── outils.js           # Logique outils
 │   ├── groupes.js          # Logique groupes
 │   ├── localisations.js    # Logique localisations
