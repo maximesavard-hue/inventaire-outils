@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="page-avec-barre-fixe">
 
 <header class="app-header">
   <a href="outils.html" class="btn-back" aria-label="Retour">←</a>
@@ -22,6 +22,19 @@
 <main class="container" id="conteneur-principal">
   <div class="loading">Chargement...</div>
 </main>
+
+<div class="bottom-fixed-stack">
+  <div class="sticky-actions">
+    <button type="submit" form="form-outil" class="btn btn-primary btn-block">Enregistrer</button>
+  </div>
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+    <a href="outils.html" class="active"><span class="icon">🔧</span>Outils</a>
+    <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+    <a href="localisations.html"><span class="icon">📍</span>Lieux</a>
+    <a href="notes.html"><span class="icon">📝</span>Notes</a>
+  </nav>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -143,10 +156,6 @@ async function chargerOutil() {
         <label for="notes">Notes</label>
         <textarea id="notes"></textarea>
       </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
-      </div>
     </form>
 
     <div class="section-title">Photo</div>
@@ -156,7 +165,7 @@ async function chargerOutil() {
       <div class="form-actions">
         <label class="btn btn-secondary btn-block" style="cursor:pointer;">
           Prendre / choisir une photo
-          <input type="file" accept="image/*" capture="environment" id="input-photo" class="hidden">
+          <input type="file" accept="image/*" id="input-photo" class="hidden">
         </label>
       </div>
     </div>

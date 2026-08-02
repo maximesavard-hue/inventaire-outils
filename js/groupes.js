@@ -17,6 +17,14 @@ function escapeHtml(texte) {
 const overlay = document.getElementById('modal-overlay')
 const form = document.getElementById('form-groupe')
 const selectLocalisation = document.getElementById('localisation_id')
+const inputPhoto = document.getElementById('input-photo')
+const texteLabelPhoto = document.getElementById('texte-label-photo')
+let fichierPhotoChoisi = null
+
+inputPhoto.addEventListener('change', (e) => {
+  fichierPhotoChoisi = e.target.files[0] || null
+  texteLabelPhoto.textContent = fichierPhotoChoisi ? `Photo choisie : ${fichierPhotoChoisi.name}` : 'Prendre / choisir une photo'
+})
 
 async function remplirSelectLocalisations() {
   const { data: localisations } = await supabase.from('localisations').select('id, nom').order('nom')
@@ -26,6 +34,8 @@ async function remplirSelectLocalisations() {
 
 document.getElementById('btn-ajouter').addEventListener('click', async () => {
   form.reset()
+  fichierPhotoChoisi = null
+  texteLabelPhoto.textContent = 'Prendre / choisir une photo'
   await remplirSelectLocalisations()
   overlay.classList.remove('hidden')
 })
@@ -41,11 +51,20 @@ form.addEventListener('submit', async (e) => {
     notes: document.getElementById('notes').value.trim() || null,
   }
 
-  const { error } = await supabase.from('groupes').insert(valeurs)
+  const { data, error } = await supabase.from('groupes').insert(valeurs).select().single()
 
   if (error) {
     afficherToast('Erreur lors de l\'ajout')
     return
+  }
+
+  if (fichierPhotoChoisi) {
+    try {
+      const url = await televerserPhoto(fichierPhotoChoisi, 'groupes', data.id)
+      await supabase.from('groupes').update({ photo_url: url }).eq('id', data.id)
+    } catch (err) {
+      afficherToast('Groupe ajouté, mais l\'envoi de la photo a échoué')
+    }
   }
 
   overlay.classList.add('hidden')

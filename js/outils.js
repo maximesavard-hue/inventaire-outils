@@ -35,6 +35,14 @@ const selectLocalisation = document.getElementById('localisation_id')
 const champDansGroupe = document.getElementById('champ-dans-groupe')
 const champLocalisation = document.getElementById('champ-localisation')
 const checkboxDansGroupe = document.getElementById('dans_groupe')
+const inputPhoto = document.getElementById('input-photo')
+const texteLabelPhoto = document.getElementById('texte-label-photo')
+let fichierPhotoChoisi = null
+
+inputPhoto.addEventListener('change', (e) => {
+  fichierPhotoChoisi = e.target.files[0] || null
+  texteLabelPhoto.textContent = fichierPhotoChoisi ? `Photo choisie : ${fichierPhotoChoisi.name}` : 'Prendre / choisir une photo'
+})
 
 async function remplirSelects() {
   const [{ data: groupes }, { data: localisations }] = await Promise.all([
@@ -59,6 +67,8 @@ checkboxDansGroupe.addEventListener('change', mettreAJourVisibiliteChamps)
 
 document.getElementById('btn-ajouter').addEventListener('click', async () => {
   form.reset()
+  fichierPhotoChoisi = null
+  texteLabelPhoto.textContent = 'Prendre / choisir une photo'
   await remplirSelects()
   mettreAJourVisibiliteChamps()
   overlay.classList.remove('hidden')
@@ -79,11 +89,20 @@ form.addEventListener('submit', async (e) => {
     localisation_id: selectLocalisation.value || null,
   }
 
-  const { error } = await supabase.from('outils').insert(valeurs)
+  const { data, error } = await supabase.from('outils').insert(valeurs).select().single()
 
   if (error) {
     afficherToast('Erreur lors de l\'ajout')
     return
+  }
+
+  if (fichierPhotoChoisi) {
+    try {
+      const url = await televerserPhoto(fichierPhotoChoisi, 'outils', data.id)
+      await supabase.from('outils').update({ photo_url: url }).eq('id', data.id)
+    } catch (err) {
+      afficherToast('Outil ajouté, mais l\'envoi de la photo a échoué')
+    }
   }
 
   overlay.classList.add('hidden')

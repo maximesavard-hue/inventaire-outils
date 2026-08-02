@@ -52,6 +52,13 @@
         <label for="notes">Notes</label>
         <textarea id="notes" placeholder="Optionnel"></textarea>
       </div>
+      <div class="field">
+        <label>Photo</label>
+        <label class="btn btn-secondary btn-block" style="cursor:pointer;">
+          <span id="texte-label-photo">Prendre / choisir une photo</span>
+          <input type="file" accept="image/*" id="input-photo" class="hidden">
+        </label>
+      </div>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary btn-block">Ajouter</button>
       </div>
@@ -71,6 +78,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
+<script src="js/photo.js"></script>
 <script src="js/groupes.js"></script>
 </body>
 </html>
