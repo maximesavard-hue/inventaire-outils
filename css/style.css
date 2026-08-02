@@ -561,6 +561,29 @@ textarea {
   gap: 8px;
 }
 
+/* Section-title utilisé comme <summary> d'un <details> (accordéon) */
+.section-title-toggle {
+  cursor: pointer;
+  list-style: none;
+  margin-top: 0;
+  user-select: none;
+}
+
+.section-title-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.section-title-toggle::after {
+  content: '▸';
+  margin-left: auto;
+  color: var(--gold);
+  transition: transform 0.15s;
+}
+
+details[open] > .section-title-toggle::after {
+  transform: rotate(90deg);
+}
+
 /* ---------- Modal ---------- */
 
 .modal-overlay {

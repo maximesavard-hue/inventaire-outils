@@ -70,9 +70,10 @@ if (!groupeId) {
 }
 
 async function chargerGroupe() {
-  const [{ data: groupe, error }, { data: localisations }] = await Promise.all([
+  const [{ data: groupe, error }, { data: localisations }, { data: outilsGroupe }] = await Promise.all([
     supabase.from('groupes').select('*').eq('id', groupeId).single(),
     supabase.from('localisations').select('id, nom').order('nom'),
+    supabase.from('outils').select('id, nom, quantite, categorie, photo_url, dans_groupe').eq('groupe_id', groupeId).order('nom'),
   ])
 
   if (error || !groupe) {
@@ -80,20 +81,42 @@ async function chargerGroupe() {
     return
   }
 
+  const listeOutilsHtml = outilsGroupe.length
+    ? outilsGroupe.map(o => {
+        const photo = o.photo_url ? `<img src="${escapeHtml(o.photo_url)}" class="list-item-photo" alt="">` : ''
+        const badgeSorti = !o.dans_groupe ? `<span class="badge badge-warning">Sorti du groupe</span>` : ''
+        return `
+          <a href="outil-detail.html?id=${o.id}" class="card list-item" data-cat="${escapeHtml(o.categorie)}">
+            ${photo}
+            <div class="list-item-main">
+              <div class="list-item-title">${escapeHtml(o.nom)} · Qté ${o.quantite}</div>
+              <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                <span class="badge" data-cat="${escapeHtml(o.categorie)}">${escapeHtml(o.categorie)}</span>
+                ${badgeSorti}
+              </div>
+            </div>
+            <span class="chevron">›</span>
+          </a>
+        `
+      }).join('')
+    : `<div class="empty-state">Aucun outil dans ce groupe</div>`
+
   conteneur.innerHTML = `
+    <div class="card" style="text-align:center;">
+      <img id="photo-apercu" class="hidden" alt="">
+      <div class="empty-state" id="photo-vide" style="padding:20px 0;">Aucune photo</div>
+      <div class="form-actions">
+        <label class="btn btn-secondary btn-block" style="cursor:pointer;">
+          <span id="texte-label-photo">Prendre / choisir une photo</span>
+          <input type="file" accept="image/*" id="input-photo" class="hidden">
+        </label>
+      </div>
+    </div>
+
     <form id="form-groupe">
       <div class="field">
         <label for="nom">Nom *</label>
         <input type="text" id="nom" required>
-      </div>
-      <div class="field">
-        <label for="type">Type</label>
-        <select id="type">
-          <option value="Packout">Packout</option>
-          <option value="Bac">Bac</option>
-          <option value="Sac">Sac</option>
-          <option value="Autre">Autre</option>
-        </select>
       </div>
       <div class="field">
         <label for="localisation_id">Localisation</label>
@@ -103,51 +126,56 @@ async function chargerGroupe() {
         </select>
       </div>
 
-      <div class="section-title">Achat</div>
-      <div class="form-row">
-        <div class="field">
-          <label for="prix_achat">Prix d'achat ($)</label>
-          <input type="number" id="prix_achat" step="0.01">
-        </div>
-        <div class="field">
-          <label for="date_achat">Date d'achat</label>
-          <input type="date" id="date_achat">
-        </div>
+      <div class="section-title">
+        Outils dans ce groupe <span class="badge">${outilsGroupe.length}</span>
       </div>
-      <div class="field">
-        <label for="magasin">Magasin</label>
-        <input type="text" id="magasin">
-      </div>
+      <div id="liste-outils-groupe">${listeOutilsHtml}</div>
 
-      <div class="section-title">Garantie</div>
-      <div class="form-row">
-        <div class="field">
-          <label for="numero_serie">Numéro de série</label>
-          <input type="text" id="numero_serie">
-        </div>
-        <div class="field">
-          <label for="date_garantie">Fin de garantie</label>
-          <input type="date" id="date_garantie">
-        </div>
-      </div>
+      <details style="margin-top:24px;">
+        <summary class="section-title section-title-toggle">Détails (type, achat, garantie, notes)</summary>
 
-      <div class="field">
-        <label for="notes">Notes</label>
-        <textarea id="notes"></textarea>
-      </div>
+        <div class="field" style="margin-top:14px;">
+          <label for="type">Type</label>
+          <select id="type">
+            <option value="Packout">Packout</option>
+            <option value="Bac">Bac</option>
+            <option value="Sac">Sac</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="prix_achat">Prix d'achat ($)</label>
+            <input type="number" id="prix_achat" step="0.01">
+          </div>
+          <div class="field">
+            <label for="date_achat">Date d'achat</label>
+            <input type="date" id="date_achat">
+          </div>
+        </div>
+        <div class="field">
+          <label for="magasin">Magasin</label>
+          <input type="text" id="magasin">
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="numero_serie">Numéro de série</label>
+            <input type="text" id="numero_serie">
+          </div>
+          <div class="field">
+            <label for="date_garantie">Fin de garantie</label>
+            <input type="date" id="date_garantie">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="notes">Notes</label>
+          <textarea id="notes"></textarea>
+        </div>
+      </details>
     </form>
-
-    <div class="section-title">Photo</div>
-    <div class="card" style="text-align:center;">
-      <img id="photo-apercu" class="hidden" alt="">
-      <div class="empty-state" id="photo-vide" style="padding:20px 0;">Aucune photo</div>
-      <div class="form-actions">
-        <label class="btn btn-secondary btn-block" style="cursor:pointer;">
-          Prendre / choisir une photo
-          <input type="file" accept="image/*" id="input-photo" class="hidden">
-        </label>
-      </div>
-    </div>
 
     <div class="section-title">Code QR</div>
     <div class="card" id="qr-print-area" style="text-align:center;">
