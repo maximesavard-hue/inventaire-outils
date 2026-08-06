@@ -70,10 +70,11 @@ if (!groupeId) {
 }
 
 async function chargerGroupe() {
-  const [{ data: groupe, error }, { data: localisations }, { data: outilsGroupe }] = await Promise.all([
+  const [{ data: groupe, error }, { data: localisations }, { data: types }, { data: outilsGroupe }] = await Promise.all([
     supabase.from('groupes').select('*').eq('id', groupeId).single(),
     supabase.from('localisations').select('id, nom').order('nom'),
-    supabase.from('outils').select('id, nom, quantite, categorie, photo_url, dans_groupe').eq('groupe_id', groupeId).order('nom'),
+    supabase.from('types_groupe').select('id, nom').order('nom'),
+    supabase.from('outils').select('id, nom, quantite, photo_url, dans_groupe, categories(nom, couleur)').eq('groupe_id', groupeId).order('nom'),
   ])
 
   if (error || !groupe) {
@@ -85,13 +86,15 @@ async function chargerGroupe() {
     ? outilsGroupe.map(o => {
         const photo = o.photo_url ? `<img src="${escapeHtml(o.photo_url)}" class="list-item-photo" alt="">` : ''
         const badgeSorti = !o.dans_groupe ? `<span class="badge badge-warning">Sorti du groupe</span>` : ''
+        const couleur = o.categories ? o.categories.couleur : '#9a9d97'
+        const nomCategorie = o.categories ? o.categories.nom : '—'
         return `
-          <a href="outil-detail.html?id=${o.id}" class="card list-item" data-cat="${escapeHtml(o.categorie)}">
+          <a href="outil-detail.html?id=${o.id}" class="card list-item" style="border-left-color:${couleur};">
             ${photo}
             <div class="list-item-main">
               <div class="list-item-title">${escapeHtml(o.nom)} · Qté ${o.quantite}</div>
               <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                <span class="badge" data-cat="${escapeHtml(o.categorie)}">${escapeHtml(o.categorie)}</span>
+                <span class="badge" style="background:${couleur}22; color:${couleur};">${escapeHtml(nomCategorie)}</span>
                 ${badgeSorti}
               </div>
             </div>
@@ -135,12 +138,9 @@ async function chargerGroupe() {
         <summary class="section-title section-title-toggle">Détails (type, achat, garantie, notes)</summary>
 
         <div class="field" style="margin-top:14px;">
-          <label for="type">Type</label>
-          <select id="type">
-            <option value="Packout">Packout</option>
-            <option value="Bac">Bac</option>
-            <option value="Sac">Sac</option>
-            <option value="Autre">Autre</option>
+          <label for="type_id">Type</label>
+          <select id="type_id">
+            ${types.map(t => `<option value="${t.id}">${escapeHtml(t.nom)}</option>`).join('')}
           </select>
         </div>
 
@@ -243,7 +243,7 @@ async function chargerGroupe() {
   })
 
   document.getElementById('nom').value = groupe.nom
-  document.getElementById('type').value = groupe.type || 'Autre'
+  document.getElementById('type_id').value = groupe.type_id || ''
   document.getElementById('localisation_id').value = groupe.localisation_id || ''
   document.getElementById('prix_achat').value = groupe.prix_achat ?? ''
   document.getElementById('date_achat').value = groupe.date_achat ?? ''
@@ -256,7 +256,7 @@ async function chargerGroupe() {
     e.preventDefault()
     const valeurs = {
       nom: document.getElementById('nom').value.trim(),
-      type: document.getElementById('type').value,
+      type_id: document.getElementById('type_id').value || null,
       localisation_id: document.getElementById('localisation_id').value || null,
       prix_achat: document.getElementById('prix_achat').value || null,
       date_achat: document.getElementById('date_achat').value || null,

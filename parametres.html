@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Paramètres — Inventaire Outils</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="btn-back" aria-label="Retour">←</a>
+  <h1>Paramètres</h1>
+</header>
+
+<main class="container">
+  <div class="section-title">Catégories d'outils</div>
+  <div id="liste-categories"><div class="loading">Chargement...</div></div>
+  <button class="btn btn-secondary btn-block" id="btn-ajouter-categorie">+ Ajouter une catégorie</button>
+
+  <div class="section-title">Types de groupe</div>
+  <div id="liste-types"><div class="loading">Chargement...</div></div>
+  <button class="btn btn-secondary btn-block" id="btn-ajouter-type">+ Ajouter un type</button>
+</main>
+
+<!-- Modal categorie -->
+<div class="modal-overlay hidden" id="modal-categorie">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="titre-modal-categorie">Nouvelle catégorie</h2>
+      <button class="btn-icon" id="btn-fermer-modal-categorie">✕</button>
+    </div>
+    <form id="form-categorie">
+      <input type="hidden" id="categorie-id">
+      <div class="field">
+        <label for="categorie-nom">Nom *</label>
+        <input type="text" id="categorie-nom" required placeholder="Ex : Pneumatique">
+      </div>
+      <div class="field">
+        <label for="categorie-couleur">Couleur</label>
+        <select id="categorie-couleur"></select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-danger hidden" id="btn-supprimer-categorie">Supprimer</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal type de groupe -->
+<div class="modal-overlay hidden" id="modal-type">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="titre-modal-type">Nouveau type</h2>
+      <button class="btn-icon" id="btn-fermer-modal-type">✕</button>
+    </div>
+    <form id="form-type">
+      <input type="hidden" id="type-id">
+      <div class="field">
+        <label for="type-nom">Nom *</label>
+        <input type="text" id="type-nom" required placeholder="Ex : Coffre">
+      </div>
+      <div class="field">
+        <label for="type-couleur">Couleur</label>
+        <select id="type-couleur"></select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-danger hidden" id="btn-supprimer-type">Supprimer</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+  <a href="outils.html"><span class="icon">🔧</span>Outils</a>
+  <a href="groupes.html"><span class="icon">📦</span>Groupes</a>
+  <a href="localisations.html"><span class="icon">📍</span>Lieux</a>
+  <a href="notes.html"><span class="icon">📝</span>Notes</a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/parametres.js"></script>
+</body>
+</html>

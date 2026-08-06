@@ -70,10 +70,11 @@ if (!outilId) {
 }
 
 async function chargerOutil() {
-  const [{ data: outil, error }, { data: groupes }, { data: localisations }] = await Promise.all([
+  const [{ data: outil, error }, { data: groupes }, { data: localisations }, { data: categories }] = await Promise.all([
     supabase.from('outils').select('*').eq('id', outilId).single(),
     supabase.from('groupes').select('id, nom').order('nom'),
     supabase.from('localisations').select('id, nom').order('nom'),
+    supabase.from('categories').select('id, nom').order('nom'),
   ])
 
   if (error || !outil) {
@@ -89,12 +90,9 @@ async function chargerOutil() {
       </div>
       <div class="form-row">
         <div class="field">
-          <label for="categorie">Catégorie</label>
-          <select id="categorie">
-            <option value="Électrique">Électrique</option>
-            <option value="Manuel">Manuel</option>
-            <option value="Échafaudage">Échafaudage</option>
-            <option value="Autre">Autre</option>
+          <label for="categorie_id">Catégorie</label>
+          <select id="categorie_id">
+            ${categories.map(c => `<option value="${c.id}">${escapeHtml(c.nom)}</option>`).join('')}
           </select>
         </div>
         <div class="field">
@@ -236,7 +234,7 @@ async function chargerOutil() {
   })
 
   document.getElementById('nom').value = outil.nom
-  document.getElementById('categorie').value = outil.categorie
+  document.getElementById('categorie_id').value = outil.categorie_id || ''
   document.getElementById('quantite').value = outil.quantite
   document.getElementById('groupe_id').value = outil.groupe_id || ''
   document.getElementById('dans_groupe').checked = outil.dans_groupe
@@ -269,7 +267,7 @@ async function chargerOutil() {
     const groupeChoisi = selectGroupe.value || null
     const valeurs = {
       nom: document.getElementById('nom').value.trim(),
-      categorie: document.getElementById('categorie').value,
+      categorie_id: document.getElementById('categorie_id').value || null,
       quantite: parseInt(document.getElementById('quantite').value, 10) || 1,
       groupe_id: groupeChoisi,
       dans_groupe: groupeChoisi ? checkboxDansGroupe.checked : false,

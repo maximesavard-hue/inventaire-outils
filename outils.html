@@ -22,10 +22,6 @@
 
   <div class="filters-row" id="filtres-categorie">
     <button class="filter-chip active" data-categorie="">Tous</button>
-    <button class="filter-chip" data-categorie="Électrique">Électrique</button>
-    <button class="filter-chip" data-categorie="Manuel">Manuel</button>
-    <button class="filter-chip" data-categorie="Échafaudage">Échafaudage</button>
-    <button class="filter-chip" data-categorie="Autre">Autre</button>
   </div>
 
   <div id="liste-outils"><div class="loading">Chargement...</div></div>
@@ -47,13 +43,8 @@
       </div>
       <div class="form-row">
         <div class="field">
-          <label for="categorie">Catégorie</label>
-          <select id="categorie">
-            <option value="Électrique">Électrique</option>
-            <option value="Manuel">Manuel</option>
-            <option value="Échafaudage">Échafaudage</option>
-            <option value="Autre" selected>Autre</option>
-          </select>
+          <label for="categorie_id">Catégorie</label>
+          <select id="categorie_id"></select>
         </div>
         <div class="field">
           <label for="quantite">Quantité</label>

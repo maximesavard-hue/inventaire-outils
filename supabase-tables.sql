@@ -9,13 +9,41 @@ CREATE TABLE localisations (
   created_at timestamp with time zone DEFAULT now()
 );
 
--- 2. Groupes
+-- 2. Catégories d'outils (gérées dans parametres.html, pas hardcodées)
+CREATE TABLE categories (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  nom text NOT NULL UNIQUE,
+  couleur text NOT NULL DEFAULT '#9a9d97',
+  created_at timestamp with time zone DEFAULT now()
+);
+
+INSERT INTO categories (nom, couleur) VALUES
+  ('Électrique', '#4a90d9'),
+  ('Manuel', '#b47fd4'),
+  ('Échafaudage', '#e0954a'),
+  ('Autre', '#9a9d97');
+
+-- 3. Types de groupe (gérés dans parametres.html, pas hardcodés)
+CREATE TABLE types_groupe (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  nom text NOT NULL UNIQUE,
+  couleur text NOT NULL DEFAULT '#9a9d97',
+  created_at timestamp with time zone DEFAULT now()
+);
+
+INSERT INTO types_groupe (nom, couleur) VALUES
+  ('Packout', '#4a90d9'),
+  ('Bac', '#b47fd4'),
+  ('Sac', '#5fbf6b'),
+  ('Autre', '#9a9d97');
+
+-- 4. Groupes
 -- Un groupe est un contenant (packout, bac...), qui peut lui-même être un objet
 -- acheté (d'où les champs prix_achat / numero_serie / etc., comme sur outils)
 CREATE TABLE groupes (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   nom text NOT NULL,
-  type text DEFAULT 'Autre', -- Packout / Bac / Sac / Autre
+  type_id uuid REFERENCES types_groupe(id),
   localisation_id uuid REFERENCES localisations(id),
   prix_achat numeric,
   date_achat date,
@@ -27,11 +55,11 @@ CREATE TABLE groupes (
   created_at timestamp with time zone DEFAULT now()
 );
 
--- 3. Outils
+-- 5. Outils
 CREATE TABLE outils (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   nom text NOT NULL,
-  categorie text DEFAULT 'Autre', -- Électrique / Manuel / Échafaudage / Autre
+  categorie_id uuid REFERENCES categories(id),
   quantite integer DEFAULT 1,
   groupe_id uuid REFERENCES groupes(id), -- appartenance permanente (optionnel)
   dans_groupe boolean DEFAULT true, -- physiquement dans son groupe?
@@ -46,7 +74,7 @@ CREATE TABLE outils (
   created_at timestamp with time zone DEFAULT now()
 );
 
--- 4. Notes
+-- 6. Notes
 CREATE TABLE notes (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   contenu text NOT NULL,
@@ -57,11 +85,13 @@ CREATE TABLE notes (
 
 -- Désactive RLS : app personnelle, pas de multi-utilisateur (voir étape 2 du CLAUDE.md)
 ALTER TABLE localisations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE types_groupe DISABLE ROW LEVEL SECURITY;
 ALTER TABLE groupes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE outils DISABLE ROW LEVEL SECURITY;
 ALTER TABLE notes DISABLE ROW LEVEL SECURITY;
 
--- 5. Stockage des photos (outils et groupes)
+-- 7. Stockage des photos (outils et groupes)
 insert into storage.buckets (id, name, public)
 values ('photos', 'photos', true)
 on conflict (id) do nothing;

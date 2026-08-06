@@ -25,11 +25,6 @@
   --warning: #e0954a;
   --warning-bg: #3a2a15;
 
-  --cat-electrique: #4a90d9;
-  --cat-manuel: #b47fd4;
-  --cat-echafaudage: #e0954a;
-  --cat-autre: #9a9d97;
-
   --radius: 10px;
   --font-head: 'Oswald', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -422,12 +417,6 @@ textarea {
   cursor: pointer;
 }
 
-/* Accent de couleur par catégorie d'outil (bordure gauche) */
-.card[data-cat="Électrique"] { border-left-color: var(--cat-electrique); }
-.card[data-cat="Manuel"] { border-left-color: var(--cat-manuel); }
-.card[data-cat="Échafaudage"] { border-left-color: var(--cat-echafaudage); }
-.card[data-cat="Autre"] { border-left-color: var(--cat-autre); }
-
 /* ---------- Badges ---------- */
 
 .badge {
@@ -452,12 +441,6 @@ textarea {
   color: var(--grey);
   border: 1px solid var(--line);
 }
-
-/* Couleurs de badge par catégorie */
-.badge[data-cat="Électrique"] { background: rgba(74, 144, 217, 0.15); color: var(--cat-electrique); }
-.badge[data-cat="Manuel"] { background: rgba(180, 127, 212, 0.15); color: var(--cat-manuel); }
-.badge[data-cat="Échafaudage"] { background: rgba(224, 149, 74, 0.15); color: var(--cat-echafaudage); }
-.badge[data-cat="Autre"] { background: rgba(154, 157, 151, 0.15); color: var(--cat-autre); }
 
 /* ---------- États vides / chargement ---------- */
 

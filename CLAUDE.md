@@ -49,7 +49,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_U_0EkEYJJGuz-IrhZSc9Vw_14UzaY3f'
 - **Repo GitHub** : `maximesavard-hue/inventaire-outils` (public) — https://github.com/maximesavard-hue/inventaire-outils
 - **Site en ligne** : https://maximesavard-hue.github.io/inventaire-outils/ (GitHub Pages, déploie automatiquement à chaque push sur `main`)
 - **Projet Supabase** : ref `twzttyglnloshujwnlkx`, nommé « ToolsApps » dans le dashboard Supabase (aucun rapport avec un repo GitHub — ce nom n'existe que côté Supabase)
-- Les 4 tables sont créées (`supabase-tables.sql`), **RLS désactivé volontairement** sur les 4 (app mono-utilisateur — voir section RLS dans `APPRENTISSAGE.md` si jamais un 2e utilisateur est ajouté, il faudra revisiter ce choix)
+- Les 6 tables sont créées (`supabase-tables.sql`), **RLS désactivé volontairement** sur toutes (app mono-utilisateur — voir section RLS dans `APPRENTISSAGE.md` si jamais un 2e utilisateur est ajouté, il faudra revisiter ce choix)
+- Catégories d'outils et types de groupe sont gérés dynamiquement (tables `categories` et `types_groupe`, CRUD dans `parametres.html`) — plus jamais hardcodés dans le HTML/CSS. Les couleurs de badge viennent de la colonne `couleur` de ces tables, appliquées en style inline (pas de CSS par nom de catégorie).
 - Photos : bucket Supabase Storage `photos` (public, sans authentification — même logique que le RLS désactivé). Colonne `photo_url` sur `outils` et `groupes`. Upload géré par `js/photo.js` (redimensionnement côté client avant envoi).
 - Design : thème « industriel-luxe » — fond charbon `#0c0d0c`, accent doré `#cda449`, polices Oswald (titres/boutons) + JetBrains Mono (données chiffrées), inspiré du projet perso `PresenceSolotech` de l'utilisateur. Code couleur par catégorie d'outil (bordure gauche + badge) dans `css/style.css`.
 - QR code par outil sur `outil-detail.html` (librairie `qrcodejs` via cdnjs) encodant le lien direct vers la fiche — imprimable/téléchargeable pour coller sur l'outil physique. **Pas de scanner intégré à l'app** : retiré volontairement, redondant avec l'appareil photo natif de n'importe quel téléphone qui lit déjà les QR codes.
@@ -72,6 +73,26 @@ const SUPABASE_ANON_KEY = 'sb_publishable_U_0EkEYJJGuz-IrhZSc9Vw_14UzaY3f'
 | notes | text | Optionnel |
 | created_at | timestamp | Automatique |
 
+### Table `categories`
+Catégories d'outils, gérées par l'utilisateur dans `parametres.html` (plus de valeurs hardcodées).
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| id | uuid | Automatique |
+| nom | text | Unique. Ex: Électrique, Manuel, Échafaudage, Autre (valeurs de départ) |
+| couleur | text | Code hex, choisi parmi une palette prédéfinie |
+| created_at | timestamp | Automatique |
+
+### Table `types_groupe`
+Types de groupe, gérés par l'utilisateur dans `parametres.html` (plus de valeurs hardcodées).
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| id | uuid | Automatique |
+| nom | text | Unique. Ex: Packout, Bac, Sac, Autre (valeurs de départ) |
+| couleur | text | Code hex, choisi parmi une palette prédéfinie |
+| created_at | timestamp | Automatique |
+
 ### Table `groupes`
 Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un objet acheté en soi (ex : un bac Milwaukee Packout a son propre numéro de modèle, prix, date d'achat). D'où les mêmes champs d'achat/garantie que sur `outils`.
 
@@ -79,7 +100,7 @@ Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un o
 |-------|------|-------------|
 | id | uuid | Automatique |
 | nom | text | Ex: Packout rouge, Bac échafaudage |
-| type | text | Packout / Bac / Sac / Autre |
+| type_id | uuid | FK → types_groupe |
 | localisation_id | uuid | FK → localisations |
 | prix_achat | numeric | Optionnel |
 | date_achat | date | Optionnel |
@@ -95,7 +116,7 @@ Un groupe est un contenant (packout, bac, sac...), mais c'est aussi souvent un o
 |-------|------|-------------|
 | id | uuid | Automatique |
 | nom | text | Ex: Plaque vibrante, Perceuse |
-| categorie | text | Électrique / Manuel / Échafaudage / Autre |
+| categorie_id | uuid | FK → categories |
 | quantite | integer | Par défaut 1 |
 | groupe_id | uuid | FK → groupes (optionnel, appartenance permanente) |
 | dans_groupe | boolean | Est-il physiquement dans son groupe? |
@@ -136,6 +157,7 @@ inventaire-outils/
 ├── notes.html              # Bloc-notes / todo
 ├── outil-detail.html       # Fiche détaillée d'un outil
 ├── groupe-detail.html      # Fiche détaillée d'un groupe (contenant + achat/garantie)
+├── parametres.html         # CRUD categories d'outils + types de groupe
 ├── css/
 │   └── style.css           # Styles globaux
 ├── js/
@@ -144,7 +166,8 @@ inventaire-outils/
 │   ├── outils.js           # Logique outils
 │   ├── groupes.js          # Logique groupes
 │   ├── localisations.js    # Logique localisations
-│   └── notes.js            # Logique notes
+│   ├── notes.js            # Logique notes
+│   └── parametres.js       # Logique categories + types de groupe
 ├── supabase-tables.sql     # Script SQL (déjà créé)
 └── CLAUDE.md               # Ce fichier
 ```

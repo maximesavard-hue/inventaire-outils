@@ -32,7 +32,7 @@ async function chargerOutilsNonLocalises() {
   const conteneur = document.getElementById('outils-non-localises')
   const { data: outils, error } = await supabase
     .from('outils')
-    .select('id, nom, categorie, quantite, dans_groupe, localisation_id, groupes(localisation_id)')
+    .select('id, nom, quantite, dans_groupe, localisation_id, categories(nom), groupes(localisation_id)')
 
   if (error) {
     conteneur.innerHTML = `<div class="empty-state">Erreur de chargement</div>`
@@ -51,7 +51,7 @@ async function chargerOutilsNonLocalises() {
     <a href="outil-detail.html?id=${o.id}" class="card list-item">
       <div class="list-item-main">
         <div class="list-item-title">${escapeHtml(o.nom)}</div>
-        <div class="list-item-sub">${escapeHtml(o.categorie)} · Qté ${o.quantite}</div>
+        <div class="list-item-sub">${escapeHtml(o.categories ? o.categories.nom : '—')} · Qté ${o.quantite}</div>
       </div>
       <span class="chevron">›</span>
     </a>
